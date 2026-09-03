@@ -108,13 +108,28 @@
 #define HTTPC_ACCEPT_HDR ""
 #endif
 
+/** HTTPC_SEND_CONNECTION_CLOSE: send "Connection: Close" with every request
+ * (the default; the client does not support persistent connections). Set to
+ * 0 in lwipopts.h when the server must keep the connection open after the
+ * response, e.g. for streaming responses such as server-sent events; the
+ * client still closes the connection itself once the content length has
+ * been received. Requests sent through a proxy always use Connection: Close. */
+#ifndef HTTPC_SEND_CONNECTION_CLOSE
+#define HTTPC_SEND_CONNECTION_CLOSE 1
+#endif
+#if HTTPC_SEND_CONNECTION_CLOSE
+#define HTTPC_CONNECTION_CLOSE_HDR "Connection: Close\r\n"
+#else
+#define HTTPC_CONNECTION_CLOSE_HDR ""
+#endif
+
 #define HTTPC_CONTENT_LEN_INVALID 0xFFFFFFFF
 
 /* GET request basic */
 #define HTTPC_REQ_11 "GET %s HTTP/1.1\r\n" /* URI */\
     "User-Agent: %s\r\n" /* User-Agent */ \
     HTTPC_ACCEPT_HDR \
-    "Connection: Close\r\n" /* we don't support persistent connections, yet */ \
+    HTTPC_CONNECTION_CLOSE_HDR \
     "%s" /* extra headers */\
     "\r\n"
 #define HTTPC_REQ_11_FORMAT(uri, extra_headers) HTTPC_REQ_11, uri, HTTPC_CLIENT_AGENT, extra_headers
@@ -124,7 +139,7 @@
     "User-Agent: %s\r\n" /* User-Agent */ \
     HTTPC_ACCEPT_HDR \
     "Host: %s\r\n" /* server name */ \
-    "Connection: Close\r\n" /* we don't support persistent connections, yet */ \
+    HTTPC_CONNECTION_CLOSE_HDR \
     "%s" /* extra headers */\
     "\r\n"
 #define HTTPC_REQ_11_HOST_FORMAT(uri, srv_name, extra_headers) HTTPC_REQ_11_HOST, uri, HTTPC_CLIENT_AGENT, srv_name, extra_headers
@@ -137,7 +152,7 @@
 #define HTTPC_REQ_11_POST_HDR "POST %s HTTP/1.1\r\n" /* URI */\
     "User-Agent: %s\r\n" \
     "Host: %s\r\n" \
-    "Connection: Close\r\n" /* we don't support persistent connections, yet */ \
+    HTTPC_CONNECTION_CLOSE_HDR \
     "%s" /* extra headers */\
     "content-length: %d\r\n" /* data length */\
     "\r\n"
