@@ -94,12 +94,26 @@
 #define HTTPC_POLL_TIMEOUT      30 /* 15 seconds */
 #endif
 
+/** HTTPC_SEND_ACCEPT_HEADER: send the default Accept header (accepting any
+ * media type) with every request. Set to 0 in lwipopts.h if the application
+ * must control exactly which headers are sent, e.g. because it signs them;
+ * an Accept header can then be supplied through the extra request headers
+ * callback (httpc_connection_t::extra_headers_fn) when it is needed. */
+#ifndef HTTPC_SEND_ACCEPT_HEADER
+#define HTTPC_SEND_ACCEPT_HEADER 1
+#endif
+#if HTTPC_SEND_ACCEPT_HEADER
+#define HTTPC_ACCEPT_HDR "Accept: */*\r\n"
+#else
+#define HTTPC_ACCEPT_HDR ""
+#endif
+
 #define HTTPC_CONTENT_LEN_INVALID 0xFFFFFFFF
 
 /* GET request basic */
 #define HTTPC_REQ_11 "GET %s HTTP/1.1\r\n" /* URI */\
     "User-Agent: %s\r\n" /* User-Agent */ \
-    "Accept: */*\r\n" \
+    HTTPC_ACCEPT_HDR \
     "Connection: Close\r\n" /* we don't support persistent connections, yet */ \
     "%s" /* extra headers */\
     "\r\n"
@@ -108,7 +122,7 @@
 /* GET request with host */
 #define HTTPC_REQ_11_HOST "GET %s HTTP/1.1\r\n" /* URI */\
     "User-Agent: %s\r\n" /* User-Agent */ \
-    "Accept: */*\r\n" \
+    HTTPC_ACCEPT_HDR \
     "Host: %s\r\n" /* server name */ \
     "Connection: Close\r\n" /* we don't support persistent connections, yet */ \
     "%s" /* extra headers */\
@@ -132,7 +146,7 @@
 /* GET request with proxy */
 #define HTTPC_REQ_11_PROXY "GET http://%s%s HTTP/1.1\r\n" /* HOST, URI */\
     "User-Agent: %s\r\n" /* User-Agent */ \
-    "Accept: */*\r\n" \
+    HTTPC_ACCEPT_HDR \
     "Host: %s\r\n" /* server name */ \
     "Connection: Close\r\n" /* we don't support persistent connections, yet */ \
     "%s" \
@@ -142,7 +156,7 @@
 /* GET request with proxy (non-default server port) */
 #define HTTPC_REQ_11_PROXY_PORT "GET http://%s:%d%s HTTP/1.1\r\n" /* HOST, host-port, URI */\
     "User-Agent: %s\r\n" /* User-Agent */ \
-    "Accept: */*\r\n" \
+    HTTPC_ACCEPT_HDR \
     "Host: %s\r\n" /* server name */ \
     "Connection: Close\r\n" /* we don't support persistent connections, yet */ \
     "%s" \
